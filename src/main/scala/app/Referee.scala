@@ -17,7 +17,6 @@ object Referee extends App {
   val startPath = "/start"
   val movePath = "/move"
 
-  import DefaultBodyReadables._
   import scala.concurrent.ExecutionContext.Implicits._
 
   // Create Akka system for thread and streaming management
@@ -55,51 +54,5 @@ object Referee extends App {
   postUrl(botOneUrl + startPath)
   postUrl(botTwoUrl + startPath)
 
-  for (i <- 0 to 1000) {
-    val botOneMoveFuture: Future[GameMove.Value] = getMove(botOneUrl + movePath)
-    val botTwoMoveFuture: Future[GameMove.Value] = getMove(botTwoUrl + movePath)
-    Await.ready(botOneMoveFuture, Duration.Inf)
-    Await.ready(botTwoMoveFuture, Duration.Inf)
-    var botOneMove = botOneMoveFuture.value.get.get
-    var botTwoMove = botTwoMoveFuture.value.get.get
-    postOpponentMove(botOneUrl + movePath, botTwoMove)
-    postOpponentMove(botTwoUrl + movePath, botOneMove)
-    botOneMove match {
-      case GameMove.DYNAMITE => {
-        botOneDynamiteRemaining -= 1
-        if (botOneDynamiteRemaining < 0) {
-          botOneMove = GameMove.WATERBOMB
-          println("BOT 1 NO DYNAMITE LEFT, PLAYING WATERBOMB")
-        }
-      }
-      case _ => botOneDynamiteRemaining
-    }
-    botTwoMove match {
-      case GameMove.DYNAMITE => {
-        botTwoDynamiteRemaining -= 1
-        if (botTwoDynamiteRemaining < 0) {
-          botTwoMove = GameMove.WATERBOMB
-          println("BOT 2 NO DYNAMITE LEFT, PLAYING WATERBOMB")
-        }
-      }
-      case _ => botTwoDynamiteRemaining
-    }
-    GameLogic.calculateResult(botOneMove, botTwoMove) match {
-      case GameResult.WIN => {
-        botOneScore += 1
-        //println("BOT 1 WON: PLAYING " + botOneMove + " TO BEAT " + botTwoMove)
-      }
-      case GameResult.LOSE => {
-        botTwoScore += 1
-        //println("BOT 2 WON: PLAYING " + botTwoMove + " TO BEAT " + botOneMove)
-      }
-      case GameResult.DRAW => {
-        //println("DRAW: BOTH PLAYED " + botOneMove)
-      }
-    }
-  }
-
-  println("Bot One Scored: " + botOneScore)
-  println("Bot Two Scored: " + botTwoScore)
   system.terminate()
 }
