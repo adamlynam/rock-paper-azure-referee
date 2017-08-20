@@ -11,15 +11,15 @@ class FakeBot(botName: String, move: GameMove.Value) extends Bot {
     botName
   }
 
-  override def start(opponentName: String, pointsToWin: Int, totalTurns: Int, startingDynamite: Int): Unit = {
-
+  override def start(opponentName: String, pointsToWin: Int, totalTurns: Int, startingDynamite: Int): Future[Unit] = {
+    Future(Unit)
   }
 
   override def nextMove: Future[GameMove.Value] = {
     Future(move)
   }
 
-  override def lastOpponentMove(lastMove: GameMove.Value): Unit = {
-
+  override def lastOpponentMove(lastMove: GameMove.Value): Future[Unit] = {
+    Future(Unit)
   }
 }

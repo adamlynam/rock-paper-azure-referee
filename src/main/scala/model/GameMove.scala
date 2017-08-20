@@ -1,5 +1,7 @@
 package model
 
+import play.api.libs.json.{Format, Reads, Writes}
+
 import scala.util.Random
 
 object GameMove extends Enumeration {
@@ -27,4 +29,6 @@ object GameMove extends Enumeration {
       values.toVector((new Random).nextInt(values.size))
     }
   }
+
+  implicit val moveFormat: Format[GameMove.Value] = Format(Reads.enumNameReads(GameMove), Writes.enumNameWrites)
 }
